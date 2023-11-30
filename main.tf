@@ -45,3 +45,12 @@ data "aws_iam_policy_document" "warpstream_s3" {
     ]
   }
 }
+
+resource "aws_ecs_cluster" "warpstream" {
+  name = var.cluster_name
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+}
