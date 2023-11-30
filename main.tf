@@ -28,3 +28,20 @@ resource "aws_s3_bucket_lifecycle_configuration" "warpstream" {
   # No other lifecycle policy. The WarpStream Agent will automatically clean up and
   # deleted expired files.
 }
+
+data "aws_iam_policy_document" "warpstream_s3" {
+  statement {
+    sid    = "AllowS3"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:DeleteObject",
+      "s3:ListBucket",
+    ]
+    resources = [
+      "${aws_s3_bucket.warpstream.arn}",
+      "${aws_s3_bucket.warpstream.arn}/*",
+    ]
+  }
+}
