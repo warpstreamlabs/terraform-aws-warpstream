@@ -54,3 +54,20 @@ resource "aws_ecs_cluster" "warpstream" {
     value = "enabled"
   }
 }
+
+resource "aws_ecs_task_definition" "warpstream_agent" {
+  family = "warpstream-agent"
+  container_definitions = templatefile("${path.module}/container-definitions.json", {
+    image      = "public.ecr.aws/warpstream-labs/warpstream_agent:${var.agent_version}",
+    bucket_url = "s3://${var.bucket_name}?region=${aws_s3_bucket.warpstream.region}",
+    api_key    = var.api_key,
+  })
+  requires_compatibilities = ["FARGATE"]
+  runtime_platform {
+    cpu_architecture        = "X86_64"
+    operating_system_family = "LINUX"
+  }
+  cpu          = 1024
+  memory       = 2048
+  network_mode = "awsvpc"
+}

@@ -8,3 +8,15 @@ variable "cluster_name" {
   type        = string
   default     = "warpstream-agent"
 }
+
+variable "agent_version" {
+  description = "Version of the WarpStream Agent."
+  type        = string
+  default     = "latest"
+}
+
+variable "api_key" {
+  description = "WarpStream API key"
+  type        = string
+  sensitive   = true
+}
