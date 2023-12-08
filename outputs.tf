@@ -8,7 +8,11 @@ output "bucket_name" {
   value       = aws_s3_bucket.warpstream.id
 }
 
-output "bucket_policy_json" {
-  description = "AWS IAM Policy document for the bucket"
-  value       = data.aws_iam_policy_document.warpstream_s3.json
+#output "bucket_policy_json" {
+#  description = "AWS IAM Policy document for the bucket"
+#  value       = data.aws_iam_policy_document.warpstream_s3.json
+#}
+
+output "vpc_default_id" {
+  value = data.aws_vpc.default.id
 }

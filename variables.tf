@@ -20,3 +20,8 @@ variable "api_key" {
   type        = string
   sensitive   = true
 }
+
+variable "virtual_cluster" {
+  description = "WarpStream Virtual Cluster ID."
+  type        = string
+}

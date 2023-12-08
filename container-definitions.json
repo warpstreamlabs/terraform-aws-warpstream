@@ -19,6 +19,15 @@
                     "appProtocol": "http"
                 }
             ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/warpstream_agent",
+                    "awslogs-region": "eu-west-3",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
             "essential": true,
             "command": [
                 "agent"
@@ -31,6 +40,10 @@
                 {
                     "name": "WARPSTREAM_BUCKET_URL",
                     "value": "${bucket_url}"
+                },
+                {
+                    "name": "WARPSTREAM_DEFAULT_VIRTUAL_CLUSTER_ID",
+                    "value": "${vc_id}"
                 }
             ],
             "environmentFiles": [],
