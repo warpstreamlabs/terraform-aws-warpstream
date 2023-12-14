@@ -29,11 +29,11 @@ variable "virtual_cluster" {
 variable "cpu" {
   description = "Number of requested CPU cores"
   type        = number
-  default     = 1
+  default     = 4
 }
 
 variable "memory" {
   description = "Requested Memroy in GiB"
   type        = number
-  default     = 2
+  default     = 16
 }
