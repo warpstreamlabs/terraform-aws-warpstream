@@ -29,45 +29,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "warpstream" {
   # deleted expired files.
 }
 
-data "aws_iam_policy_document" "warpstream_s3" {
-  statement {
-    sid    = "AllowS3"
-    effect = "Allow"
-    actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:DeleteObject",
-      "s3:ListBucket",
-    ]
-    resources = [
-      "${aws_s3_bucket.warpstream.arn}",
-      "${aws_s3_bucket.warpstream.arn}/*",
-    ]
-  }
-}
-
-data "aws_iam_policy_document" "ecs_assume_role" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["ecs-tasks.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_role" "agent" {
-  name               = "agent_role"
-  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
-}
-
-resource "aws_iam_role_policy" "agent_s3" {
-  name   = "agent_s3"
-  role   = aws_iam_role.agent.name
-  policy = data.aws_iam_policy_document.warpstream_s3.json
-}
-
 resource "aws_ecs_cluster" "warpstream" {
   name = var.cluster_name
 
@@ -75,10 +36,6 @@ resource "aws_ecs_cluster" "warpstream" {
     name  = "containerInsights"
     value = "enabled"
   }
-}
-
-data "aws_iam_role" "ecs" {
-  name = "ecsTaskExecutionRole"
 }
 
 resource "aws_cloudwatch_log_group" "warpstream_agent" {
@@ -122,8 +79,6 @@ resource "aws_ecs_service" "warpstream_agent" {
   task_definition = aws_ecs_task_definition.warpstream_agent.arn
   desired_count   = 1
   launch_type     = "FARGATE"
-  # iam_role        = aws_iam_role.foo.arn
-  # depends_on      = [aws_iam_role_policy.foo]
 
   network_configuration {
     subnets          = data.aws_subnets.default.ids
