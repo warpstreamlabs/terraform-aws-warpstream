@@ -55,8 +55,8 @@ resource "aws_ecs_task_definition" "warpstream_agent" {
     cpu_architecture        = "X86_64"
     operating_system_family = "LINUX"
   }
-  cpu                = 1024
-  memory             = 2048
+  cpu                = var.cpu * 1024
+  memory             = var.memory * 1024
   network_mode       = "awsvpc"
   execution_role_arn = data.aws_iam_role.ecs.arn
   task_role_arn      = aws_iam_role.agent.arn

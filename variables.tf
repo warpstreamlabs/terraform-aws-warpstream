@@ -25,3 +25,15 @@ variable "virtual_cluster" {
   description = "WarpStream Virtual Cluster ID."
   type        = string
 }
+
+variable "cpu" {
+  description = "Number of requested CPU cores"
+  type        = number
+  default     = 1
+}
+
+variable "memory" {
+  description = "Requested Memroy in GiB"
+  type        = number
+  default     = 2
+}
