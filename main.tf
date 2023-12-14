@@ -64,20 +64,31 @@ resource "aws_ecs_task_definition" "warpstream_agent" {
 }
 
 data "aws_vpc" "default" {
-  count   = length(var.vpc_subnets) > 0 ? 0 : 1
+  count   = var.vpc_id != null ? 0 : 1
   default = "true"
 }
 
-data "aws_subnets" "default" {
+locals {
+  vpc = var.vpc_id != null ? var.vpc_id : data.aws_vpc.default[0].id
+}
+
+data "aws_subnets" "all" {
   count = length(var.vpc_subnets) > 0 ? 0 : 1
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.default[0].id]
+    values = [local.vpc]
   }
 }
 
 locals {
-  subnets = length(var.vpc_subnets) > 0 ? var.vpc_subnets : data.aws_subnets.default[0].ids
+  subnets = length(var.vpc_subnets) > 0 ? var.vpc_subnets : data.aws_subnets.all[0].ids
+}
+
+resource "aws_lb_target_group" "warpstream_agent" {
+  name     = "warpstream-agent-lb"
+  port     = 9092
+  protocol = "HTTP"
+  vpc_id   = local.vpc
 }
 
 resource "aws_ecs_service" "warpstream_agent" {
@@ -92,9 +103,9 @@ resource "aws_ecs_service" "warpstream_agent" {
     assign_public_ip = true
   }
 
-  #load_balancer {
-  #  target_group_arn = aws_lb_target_group.foo.arn
-  #  container_name   = "warpstream-agent"
-  #  container_port   = 8080
-  #}
+  load_balancer {
+    target_group_arn = aws_lb_target_group.warpstream_agent.arn
+    container_name   = "warpstream-agent"
+    container_port   = 9092
+  }
 }

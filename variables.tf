@@ -43,8 +43,14 @@ variable "memory" {
   default     = 16
 }
 
+variable "vpc_id" {
+  description = "ID of the VPC for the ECS cluster. The default VPC is used if not provided."
+  type        = string
+  default     = null
+}
+
 variable "vpc_subnets" {
-  description = "IDs of the VPC subnets for the ECS cluster. All subnets from the default VPC are used if not provided."
+  description = "IDs of the VPC subnets for the ECS cluster. All subnets in the VPC are used if not provided."
   type        = list(string)
   default     = []
 }
