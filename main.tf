@@ -49,6 +49,7 @@ resource "aws_ecs_task_definition" "warpstream_agent" {
     bucket_url = "s3://${var.bucket_name}?region=${aws_s3_bucket.warpstream.region}",
     api_key    = var.api_key,
     vc_id      = var.virtual_cluster,
+    ap_name    = var.agent_pool_name,
   })
   requires_compatibilities = ["FARGATE"]
   runtime_platform {

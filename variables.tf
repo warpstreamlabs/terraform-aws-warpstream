@@ -26,6 +26,11 @@ variable "virtual_cluster" {
   type        = string
 }
 
+variable "agent_pool_name" {
+  description = "WarpStream Agent Pool Name."
+  type        = string
+}
+
 variable "cpu" {
   description = "Number of requested CPU cores"
   type        = number
