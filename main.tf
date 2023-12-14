@@ -63,34 +63,6 @@ resource "aws_ecs_task_definition" "warpstream_agent" {
   task_role_arn      = aws_iam_role.agent.arn
 }
 
-data "aws_vpc" "default" {
-  count   = var.vpc_id != null ? 0 : 1
-  default = "true"
-}
-
-locals {
-  vpc = var.vpc_id != null ? var.vpc_id : data.aws_vpc.default[0].id
-}
-
-data "aws_subnets" "all" {
-  count = length(var.vpc_subnets) > 0 ? 0 : 1
-  filter {
-    name   = "vpc-id"
-    values = [local.vpc]
-  }
-}
-
-locals {
-  subnets = length(var.vpc_subnets) > 0 ? var.vpc_subnets : data.aws_subnets.all[0].ids
-}
-
-resource "aws_lb_target_group" "warpstream_agent" {
-  name     = "warpstream-agent-lb"
-  port     = 9092
-  protocol = "HTTP"
-  vpc_id   = local.vpc
-}
-
 resource "aws_ecs_service" "warpstream_agent" {
   name            = "warpstream-agent"
   cluster         = aws_ecs_cluster.warpstream.id
@@ -108,4 +80,6 @@ resource "aws_ecs_service" "warpstream_agent" {
     container_name   = "warpstream-agent"
     container_port   = 9092
   }
+
+  depends_on = [aws_lb_listener.warpstream_agent]
 }
