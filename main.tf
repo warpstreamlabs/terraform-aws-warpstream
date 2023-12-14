@@ -64,14 +64,20 @@ resource "aws_ecs_task_definition" "warpstream_agent" {
 }
 
 data "aws_vpc" "default" {
+  count   = length(var.vpc_subnets) > 0 ? 0 : 1
   default = "true"
 }
 
 data "aws_subnets" "default" {
+  count = length(var.vpc_subnets) > 0 ? 0 : 1
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
+    values = [data.aws_vpc.default[0].id]
   }
+}
+
+locals {
+  subnets = length(var.vpc_subnets) > 0 ? var.vpc_subnets : data.aws_subnets.default[0].ids
 }
 
 resource "aws_ecs_service" "warpstream_agent" {
@@ -82,7 +88,7 @@ resource "aws_ecs_service" "warpstream_agent" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = data.aws_subnets.default.ids
+    subnets          = local.subnets
     assign_public_ip = true
   }
 
