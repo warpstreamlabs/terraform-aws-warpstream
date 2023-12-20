@@ -20,6 +20,7 @@ locals {
 }
 
 resource "aws_lb" "warpstream" {
+  count              = var.create_lb ? 1 : 0
   name               = "warpstream-lb"
   internal           = false
   load_balancer_type = "network"
@@ -27,17 +28,19 @@ resource "aws_lb" "warpstream" {
 }
 
 resource "aws_lb_listener" "warpstream_agent" {
-  load_balancer_arn = aws_lb.warpstream.arn
+  count             = var.create_lb ? 1 : 0
+  load_balancer_arn = aws_lb.warpstream[0].arn
   port              = 9092
   protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.warpstream_agent.arn
+    target_group_arn = aws_lb_target_group.warpstream_agent[0].arn
   }
 }
 
 resource "aws_lb_target_group" "warpstream_agent" {
+  count       = var.create_lb ? 1 : 0
   name        = "warpstream-agent-lb"
   port        = 9092
   protocol    = "TCP"

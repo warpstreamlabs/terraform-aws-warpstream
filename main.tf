@@ -70,15 +70,21 @@ resource "aws_ecs_service" "warpstream_agent" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
-  network_configuration {
-    subnets          = local.subnets
-    assign_public_ip = true
+  dynamic "network_configuration" {
+    for_each = var.create_lb ? [1] : []
+    content {
+      subnets          = local.subnets
+      assign_public_ip = true
+    }
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.warpstream_agent.arn
-    container_name   = "warpstream-agent"
-    container_port   = 9092
+  dynamic "load_balancer" {
+    for_each = var.create_lb ? [1] : []
+    content {
+      target_group_arn = aws_lb_target_group.warpstream_agent[0].arn
+      container_name   = "warpstream-agent"
+      container_port   = 9092
+    }
   }
 
   depends_on = [aws_lb_listener.warpstream_agent]

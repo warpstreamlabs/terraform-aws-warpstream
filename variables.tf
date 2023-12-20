@@ -38,9 +38,15 @@ variable "cpu" {
 }
 
 variable "memory" {
-  description = "Requested Memroy in GiB"
+  description = "Requested Memory in GiB"
   type        = number
   default     = 16
+}
+
+variable "create_lb" {
+  description = "Create Network Load Balancer"
+  type        = bool
+  default     = true
 }
 
 variable "vpc_id" {
