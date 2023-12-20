@@ -51,7 +51,7 @@ resource "aws_ecs_task_definition" "warpstream_agent" {
     vc_id      = var.virtual_cluster,
     ap_name    = var.agent_pool_name,
   })
-  requires_compatibilities = ["FARGATE"]
+  requires_compatibilities = ["EC2", "FARGATE"]
   runtime_platform {
     cpu_architecture        = "X86_64"
     operating_system_family = "LINUX"
