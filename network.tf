@@ -88,11 +88,58 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private[count.index].id
 }
 
+## SG for ECS Container Instances
+resource "aws_security_group" "ecs_container_instance" {
+  name        = "warpstream_ECS_Task_SecurityGroup"
+  description = "Security group for ECS task running on Fargate"
+  vpc_id      = aws_vpc.default.id
+
+  ingress {
+    description     = "Allow ingress traffic from ALB on HTTP only"
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  egress {
+    description = "Allow all egress traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+## SG for ALB
+resource "aws_security_group" "alb" {
+  name        = "warpstream_ALB_SecurityGroup"
+  description = "Security group for ALB"
+  vpc_id      = aws_vpc.default.id
+
+  egress {
+    description = "Allow all egress traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Allow public ingress traffic"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 ## Application Load Balancer in public subnets
 resource "aws_lb" "alb" {
   name               = "warpstream-ALB"
   load_balancer_type = "application"
   subnets            = aws_subnet.public.*.id
+  security_groups    = [aws_security_group.alb.id]
 }
 
 ## Default HTTP listener

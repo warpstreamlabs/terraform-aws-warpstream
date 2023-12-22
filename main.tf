@@ -73,6 +73,7 @@ resource "aws_ecs_service" "warpstream_agent" {
   network_configuration {
     subnets          = aws_subnet.private.*.id
     assign_public_ip = false
+    security_groups  = [aws_security_group.ecs_container_instance.id]
   }
 
   load_balancer {
