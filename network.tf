@@ -99,6 +99,22 @@ resource "aws_security_group" "ecs_container_instance" {
   description = "Security group for ECS task running on Fargate"
   vpc_id      = local.vpc_id
 
+  ingress {
+    description     = "Allow ingress traffic from ALB on HTTP"
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id, aws_security_group.nlb.id]
+  }
+
+  ingress {
+    description     = "Allow ingress traffic from NLB on 9092"
+    from_port       = 9092
+    to_port         = 9092
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id, aws_security_group.nlb.id]
+  }
+
   egress {
     description = "Allow all egress traffic"
     from_port   = 0

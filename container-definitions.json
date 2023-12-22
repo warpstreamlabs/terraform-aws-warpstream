@@ -14,8 +14,7 @@
                     "name": "warpstream-agent-8080-tcp",
                     "containerPort": 8080,
                     "hostPort": 8080,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
+                    "protocol": "tcp"
                 }
             ],
             "logConfiguration": {

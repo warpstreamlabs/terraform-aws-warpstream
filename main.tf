@@ -75,4 +75,12 @@ resource "aws_ecs_service" "warpstream_agent" {
     assign_public_ip = false
     security_groups  = [aws_security_group.ecs_container_instance.id]
   }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.service_http.arn
+    container_name   = "warpstream-agent"
+    container_port   = 8080
+  }
+
+  depends_on = [aws_lb_listener.http]
 }
