@@ -46,4 +46,15 @@ resource "aws_lb_target_group" "warpstream_agent" {
   protocol    = "TCP"
   vpc_id      = local.vpc
   target_type = "ip"
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 60
+    timeout             = 30
+    port                = 8080
+    protocol            = "HTTP"
+    path                = "/v1/status"
+    matcher             = 200
+  }
 }
