@@ -70,12 +70,9 @@ resource "aws_ecs_service" "warpstream_agent" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
-  dynamic "network_configuration" {
-    for_each = var.create_lb ? [1] : []
-    content {
-      subnets          = local.subnets
-      assign_public_ip = true
-    }
+  network_configuration {
+    subnets          = local.subnets
+    assign_public_ip = true
   }
 
   dynamic "load_balancer" {
