@@ -64,25 +64,15 @@ resource "aws_ecs_task_definition" "warpstream_agent" {
 }
 
 resource "aws_ecs_service" "warpstream_agent" {
-  name            = "warpstream-agent"
+  name            = "warpstream-agent-svc"
   cluster         = aws_ecs_cluster.warpstream.id
   task_definition = aws_ecs_task_definition.warpstream_agent.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = local.subnets
-    assign_public_ip = true
+    subnets          = aws_subnet.private.*.id
+    assign_public_ip = false
+    security_groups  = [aws_security_group.ecs_container_instance.id]
   }
-
-  dynamic "load_balancer" {
-    for_each = var.create_lb ? [1] : []
-    content {
-      target_group_arn = aws_lb_target_group.warpstream_agent[0].arn
-      container_name   = "warpstream-agent"
-      container_port   = 9092
-    }
-  }
-
-  depends_on = [aws_lb_listener.warpstream_agent]
 }

@@ -43,12 +43,6 @@ variable "memory" {
   default     = 16
 }
 
-variable "create_lb" {
-  description = "Create Network Load Balancer"
-  type        = bool
-  default     = true
-}
-
 variable "vpc_id" {
   description = "ID of the VPC for the ECS cluster. The default VPC is used if not provided."
   type        = string
@@ -59,4 +53,10 @@ variable "vpc_subnets" {
   description = "IDs of the VPC subnets for the ECS cluster. All subnets in the VPC are used if not provided."
   type        = list(string)
   default     = []
+}
+
+variable "availability_zones" {
+  description = "Number of availablity zone to configure"
+  type        = number
+  default     = 2
 }
