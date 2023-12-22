@@ -12,3 +12,8 @@ output "bucket_name" {
 #  description = "AWS IAM Policy document for the bucket"
 #  value       = data.aws_iam_policy_document.warpstream_s3.json
 #}
+
+output "lb_domain" {
+  description = "AWS Load balancer domain name"
+  value       = try(aws_lb.warpstream[0].dns_name, null)
+}
