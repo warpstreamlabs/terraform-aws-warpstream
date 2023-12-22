@@ -60,3 +60,9 @@ variable "vpc_subnets" {
   type        = list(string)
   default     = []
 }
+
+variable "availability_zones" {
+  description = "Number of availablity zone to configure"
+  type        = number
+  default     = 2
+}
