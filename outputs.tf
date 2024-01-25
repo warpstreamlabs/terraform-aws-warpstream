@@ -13,7 +13,12 @@ output "bucket_name" {
 #  value       = data.aws_iam_policy_document.warpstream_s3.json
 #}
 
-output "lb_domain" {
-  description = "AWS Load balancer domain name"
+output "alb_domain" {
+  description = "AWS Application Load Balancer domain name"
   value       = aws_lb.alb.dns_name
+}
+
+output "nlb_domain" {
+  description = "AWS Network Load Balancer domain name"
+  value       = aws_lb.nlb.dns_name
 }

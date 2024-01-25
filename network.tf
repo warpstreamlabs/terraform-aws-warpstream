@@ -95,11 +95,19 @@ resource "aws_security_group" "ecs_container_instance" {
   vpc_id      = aws_vpc.default.id
 
   ingress {
-    description     = "Allow ingress traffic from ALB on HTTP only"
+    description     = "Allow ingress traffic from ALB on HTTP"
     from_port       = 8080
     to_port         = 8080
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
+    security_groups = [aws_security_group.alb.id, aws_security_group.nlb.id]
+  }
+
+  ingress {
+    description     = "Allow ingress traffic from NLB on 9092"
+    from_port       = 9092
+    to_port         = 9092
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id, aws_security_group.nlb.id]
   }
 
   egress {
@@ -126,12 +134,52 @@ resource "aws_security_group" "alb" {
   }
 
   ingress {
-    description = "Allow public ingress traffic"
+    description = "Allow public HTTP traffic"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    description = "Allow public HTTPS traffic"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+## SG for NLB
+resource "aws_security_group" "nlb" {
+  name        = "warpstream_NLB_SecurityGroup"
+  description = "Security group for NLB"
+  vpc_id      = aws_vpc.default.id
+
+  egress {
+    description = "Allow all egress traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Allow public TLS traffic"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+## Network Load Balancer in public subnets
+resource "aws_lb" "nlb" {
+  name               = "warpstream-NLB"
+  load_balancer_type = "network"
+  subnets            = aws_subnet.public.*.id
+  security_groups    = [aws_security_group.nlb.id]
 }
 
 ## Application Load Balancer in public subnets
@@ -175,4 +223,27 @@ resource "aws_lb_target_group" "service_target_group" {
   }
 
   depends_on = [aws_lb.alb]
+}
+
+## Target Group for our service
+resource "aws_lb_target_group" "service_kafka" {
+  name                 = "warpstream-kafka"
+  port                 = 9092
+  protocol             = "TCP"
+  vpc_id               = aws_vpc.default.id
+  deregistration_delay = 5
+  target_type          = "ip"
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 60
+    matcher             = 200
+    path                = "/v1/status"
+    port                = 8080
+    protocol            = "HTTP"
+    timeout             = 30
+  }
+
+  depends_on = [aws_lb.nlb]
 }
