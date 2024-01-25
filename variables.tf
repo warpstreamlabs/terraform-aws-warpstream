@@ -66,3 +66,8 @@ variable "availability_zones" {
   type        = number
   default     = 2
 }
+
+variable "dns_organization" {
+  description = "The organization name in the TLS self-signed certificate"
+  type        = string
+}

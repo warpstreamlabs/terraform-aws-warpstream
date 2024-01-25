@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    tls = {
+      source = "hashicorp/tls"
+    }
+  }
+}
+
 resource "aws_s3_bucket" "warpstream" {
   bucket = var.bucket_name
 
