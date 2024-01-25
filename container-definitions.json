@@ -8,8 +8,7 @@
                     "name": "warpstream-agent-9092-tcp",
                     "containerPort": 9092,
                     "hostPort": 9092,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
+                    "protocol": "tcp"
                 },
                 {
                     "name": "warpstream-agent-8080-tcp",
