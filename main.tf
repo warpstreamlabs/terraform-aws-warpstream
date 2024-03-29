@@ -1,40 +1,13 @@
-resource "aws_s3_bucket" "warpstream" {
-  bucket = var.bucket_name
-
-  tags = {
-    Name        = var.bucket_name
-    Environment = "production"
-  }
-}
-
-resource "aws_s3_bucket_metric" "warpstream" {
-  bucket = aws_s3_bucket.warpstream.id
-  name   = "EntireBucket"
-}
-
-resource "aws_s3_bucket_lifecycle_configuration" "warpstream" {
-  bucket = aws_s3_bucket.warpstream.id
-
-  # Automatically cancel all multi-part uploads after 7d so we don't accumulate an infinite
-  # number of partial uploads.
-  rule {
-    id     = "7d multi-part"
-    status = "Enabled"
-    abort_incomplete_multipart_upload {
-      days_after_initiation = 7
-    }
-  }
-
-  # No other lifecycle policy. The WarpStream Agent will automatically clean up and
-  # deleted expired files.
-}
-
 resource "aws_ecs_cluster" "warpstream" {
   name = var.cluster_name
 
   setting {
     name  = "containerInsights"
     value = "enabled"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -59,8 +32,12 @@ resource "aws_ecs_task_definition" "warpstream_agent" {
   cpu                = var.cpu * 1024
   memory             = var.memory * 1024
   network_mode       = "awsvpc"
-  execution_role_arn = data.aws_iam_role.ecs.arn
-  task_role_arn      = aws_iam_role.agent.arn
+
+  # execution_role_arn = data.aws_iam_role.ecs.arn
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+
+  # task_role_arn      = aws_iam_role.agent.arn
+  task_role_arn      = aws_iam_role.ecs_task_iam_role.arn
 }
 
 resource "aws_ecs_service" "warpstream_agent" {
@@ -68,11 +45,12 @@ resource "aws_ecs_service" "warpstream_agent" {
   cluster         = aws_ecs_cluster.warpstream.id
   task_definition = aws_ecs_task_definition.warpstream_agent.arn
   desired_count   = 1
-  launch_type     = "FARGATE"
+  launch_type     = "EC2"
+  # iam_role        = aws_iam_role.ecs_service_role.arn
 
   network_configuration {
-    subnets          = local.subnets
-    assign_public_ip = true
+    subnets          = data.aws_subnets.all.ids
+    # assign_public_ip = true
   }
 
   dynamic "load_balancer" {
@@ -84,5 +62,19 @@ resource "aws_ecs_service" "warpstream_agent" {
     }
   }
 
+  ordered_placement_strategy {
+   type  = "spread"
+   field = "attribute:ecs.availability-zone"
+  }
+  
+  ordered_placement_strategy {
+   type  = "binpack"
+   field = "memory"
+  }
+
   depends_on = [aws_lb_listener.warpstream_agent]
+
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
 }
