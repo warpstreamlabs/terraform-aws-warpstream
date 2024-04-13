@@ -12,7 +12,8 @@ module "service" {
   cpu                      = var.cpu * 1024
   memory                   = var.memory * 1024
   force_new_deployment     = true
-  requires_compatibilities = ["EC2", "FARGATE"]
+  requires_compatibilities = ["EC2"]
+  launch_type = "EC2"
   network_mode             = "awsvpc"
   runtime_platform = {
     cpu_architecture        = "X86_64"
