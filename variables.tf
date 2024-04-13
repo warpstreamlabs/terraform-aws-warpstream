@@ -3,16 +3,50 @@ variable "bucket_name" {
   type        = string
 }
 
+variable "create_bucket" {
+  description = "Whether or not to create a new s3 bucket. If set to false, requires the s3 bucket is created separately"
+  default     = false
+}
+
 variable "cluster_name" {
   description = "Name of the ECS cluster hosting the WarpStream Agent service."
   type        = string
   default     = "warpstream-agent"
 }
 
+variable "create_cluster" {
+  description = "Whether or not to create a new ECS bucket. If set to false, requires the ECS cluster is created separately"
+  default     = false
+}
+
+variable "agent_role_name" {
+  description = "Name of the agent role for ECS"
+  type        = string
+  default     = "warpstream-agent"
+}
+
+variable "create_agent_role" {
+  description = "Whether or not to create agent role."
+  type        = bool
+  default     = false
+}
+
 variable "agent_version" {
   description = "Version of the WarpStream Agent."
   type        = string
   default     = "latest"
+}
+
+variable "create_lb" {
+  description = "Whether or not to create load balancer."
+  type        = bool
+  default     = false
+}
+
+variable "lb_name" {
+  description = "Name of the load balancer"
+  type        = string
+  default     = "warpstream-agent"
 }
 
 variable "api_key" {
@@ -38,20 +72,14 @@ variable "memory" {
   default     = 16
 }
 
-variable "create_lb" {
-  description = "Create Network Load Balancer"
-  type        = bool
-  default     = true
-}
-
 variable "vpc_id" {
   description = "ID of the VPC for the ECS cluster. The default VPC is used if not provided."
   type        = string
   default     = null
 }
 
-variable "vpc_subnets" {
-  description = "IDs of the VPC subnets for the ECS cluster. All subnets in the VPC are used if not provided."
-  type        = list(string)
-  default     = []
+variable "vpc_subnet_visibility_tag" {
+  description = "Visibility tag to look up subnets on, within the ECS cluster."
+  type        = string
+  default     = "public"
 }
