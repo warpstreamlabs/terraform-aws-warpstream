@@ -1,0 +1,56 @@
+{
+        "name": "warpstream-agent",
+        "image": "${image}",
+        "cpu": 0,
+        "portMappings": [
+            {
+                "name": "warpstream-agent-9092-tcp",
+                "containerPort": 9092,
+                "hostPort": 9092,
+                "protocol": "tcp",
+                "appProtocol": "http"
+            },
+            {
+                "name": "warpstream-agent-8080-tcp",
+                "containerPort": 8080,
+                "hostPort": 8080,
+                "protocol": "tcp",
+                "appProtocol": "http"
+            }
+        ],
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-create-group": "true",
+                "awslogs-group": "/ecs/warpstream_agent",
+                "awslogs-region": "${region}",
+                "awslogs-stream-prefix": "ecs"
+            }
+        },
+        "essential": true,
+        "command": [
+            "agent"
+        ],
+        "environment": [
+            {
+                "name": "WARPSTREAM_API_KEY",
+                "value": "${api_key}"
+            },
+            {
+                "name": "WARPSTREAM_BUCKET_URL",
+                "value": "${bucket_url}"
+            },
+            {
+                "name": "WARPSTREAM_DEFAULT_VIRTUAL_CLUSTER_ID",
+                "value": "${vc_id}"
+            },
+            {
+                "name": "WARPSTREAM_REGION",
+                "value": "${warpstream_region}"
+            }
+        ],
+        "environmentFiles": [],
+        "mountPoints": [],
+        "volumesFrom": [],
+        "ulimits": []
+    }
