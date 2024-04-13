@@ -13,7 +13,7 @@ module "service" {
   memory                   = var.memory * 1024
   force_new_deployment     = true
   requires_compatibilities = ["EC2"]
-  launch_type = "EC2"
+  launch_type              = "EC2"
   network_mode             = "awsvpc"
   runtime_platform = {
     cpu_architecture        = "X86_64"
@@ -84,8 +84,10 @@ module "service" {
     #}))
   }
 
-  iam_role_name = var.agent_role_name
-  subnet_ids    = data.aws_subnets.subnets.ids
+  create_tasks_iam_role = false
+  tasks_iam_role_arn    = local.agent_role_arn
+
+  subnet_ids = data.aws_subnets.subnets.ids
   security_group_rules = {
     ingress_http = {
       type        = "ingress"

@@ -32,6 +32,10 @@ resource "aws_iam_policy" "access" {
   policy = data.aws_iam_policy_document.access.json
 }
 
+locals {
+  agent_role_arn = var.create_agent_role ? module.agent[0].role_arn : data.aws_iam_role.agent[0].arn
+}
+
 data "aws_iam_role" "agent" {
   count = var.create_agent_role ? 0 : 1
   name  = var.agent_role_name
