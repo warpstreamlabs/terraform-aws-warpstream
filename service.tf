@@ -44,7 +44,7 @@ module "service" {
         log_driver = "awslogs"
         options = {
           "awslogs-create-group" : "true"
-          "awslogs-group" : cloudwatch_log_group.warpstream_agent.name
+          "awslogs-group" : aws_cloudwatch_log_group.warpstream_agent.name
           "awslogs-region" : local.bucket_region
           "awslogs-stream-prefix" : "ecs"
         }
