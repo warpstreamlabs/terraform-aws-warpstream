@@ -33,7 +33,7 @@ resource "aws_iam_policy" "access" {
 }
 
 locals {
-  agent_role_arn = var.create_agent_role ? module.agent[0].role_arn : data.aws_iam_role.agent[0].arn
+  agent_role_arn = var.create_agent_role ? module.agent[0].iam_role_arn : data.aws_iam_role.agent[0].arn
 }
 
 data "aws_iam_role" "agent" {
