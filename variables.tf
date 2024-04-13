@@ -63,6 +63,12 @@ variable "lb_name" {
   default     = "warpstream-agent"
 }
 
+variable "log_group_name" {
+  description = "Name of the agent log group"
+  type        = string
+  default     = "warpstream-agent"
+}
+
 variable "api_key" {
   description = "WarpStream API key"
   type        = string
