@@ -24,7 +24,7 @@
                 "options": {
                     "awslogs-create-group": "true",
                     "awslogs-group": "/ecs/warpstream_agent",
-                    "awslogs-region": "eu-west-3",
+                    "awslogs-region": "${region}",
                     "awslogs-stream-prefix": "ecs"
                 }
             },
@@ -44,6 +44,10 @@
                 {
                     "name": "WARPSTREAM_DEFAULT_VIRTUAL_CLUSTER_ID",
                     "value": "${vc_id}"
+                },
+                {
+                    "name": "WARPSTREAM_REGION",
+                    "value": "${warpstream_region}"
                 }
             ],
             "environmentFiles": [],

@@ -31,6 +31,20 @@ variable "create_agent_role" {
   default     = false
 }
 
+// network configuration
+variable "vpc_id" {
+  description = "ID of the VPC for the ECS cluster. The default VPC is used if not provided."
+  type        = string
+  default     = null
+}
+
+variable "vpc_subnet_visibility_tag" {
+  description = "Visibility tag to look up subnets on, within the ECS cluster."
+  type        = string
+  default     = "public"
+}
+
+// agent configuration
 variable "agent_version" {
   description = "Version of the WarpStream Agent."
   type        = string
@@ -72,14 +86,8 @@ variable "memory" {
   default     = 16
 }
 
-variable "vpc_id" {
-  description = "ID of the VPC for the ECS cluster. The default VPC is used if not provided."
+variable "warpstream_region" {
+  description = "Warpstream control plane region"
   type        = string
-  default     = null
-}
-
-variable "vpc_subnet_visibility_tag" {
-  description = "Visibility tag to look up subnets on, within the ECS cluster."
-  type        = string
-  default     = "public"
+  default     = "us-east-1"
 }
