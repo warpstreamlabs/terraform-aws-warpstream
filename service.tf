@@ -19,25 +19,79 @@ module "service" {
     operating_system_family = "LINUX"
   }
   container_definitions = {
-    "agent" = jsondecode(templatefile("${path.module}/container-definitions/agent.json", {
-      image      = "public.ecr.aws/warpstream-labs/warpstream_agent:${var.agent_version}",
-      bucket_url = "s3://${var.bucket_name}?region=${local.bucket_region}",
-      region = local.bucket_region,
-      api_key    = var.api_key,
-      vc_id      = var.virtual_cluster,
-      warpstream_region = var.warpstream_region,
-    }))
+    "warpstream-agent" = {
+      cpu       = var.cpu * 512
+      memory    = var.memory * 1024
+      essential = true
+      image     = "public.ecr.aws/warpstream-labs/warpstream_agent:${var.agent_version}"
+      port_mappings = [
+        {
+          name          = "warpstream-agent-9092"
+          containerPort = 9092
+          hostPort      = 9092
+          protocol      = "tcp"
+          app_protocol  = "http"
+        },
+        {
+          name          = "warpstream-agent-8080"
+          containerPort = 8080
+          hostPort      = 8080
+          protocol      = "tcp"
+          app_protocol  = "http"
+        }
+      ]
+      log_configuration = {
+        log_driver = "awslogs"
+        options = {
+          "awslogs-create-group" : "true"
+          "awslogs-group" : "/ecs/warpstream_agent"
+          "awslogs-region" : local.bucket_region,
+          "awslogs-stream-prefix" : "ecs"
+        }
+      }
+      command = [
+        "agent"
+      ]
+      memory_reservation = 100
+      environment = [
+        {
+          name  = "WARPSTREAM_API_KEY"
+          value = var.api_key
+        },
+        {
+          name  = "WARPSTREAM_BUCKET_URL"
+          value = "s3://${var.bucket_name}?region=${local.bucket_region}"
+        },
+        {
+          name  = "WARPSTREAM_DEFAULT_VIRTUAL_CLUSTER_ID"
+          value = var.virtual_cluster
+        },
+        {
+          name  = "WARPSTREAM_REGION"
+          value = var.warpstream_region
+        }
+      ]
+    }
+
+    #jsondecode(templatefile("${path.module}/container-definitions/agent.json", {
+    #image      = "public.ecr.aws/warpstream-labs/warpstream_agent:${var.agent_version}",
+    #bucket_url = "s3://${var.bucket_name}?region=${local.bucket_region}",
+    #region = local.bucket_region,
+    #api_key    = var.api_key,
+    #vc_id      = var.virtual_cluster,
+    #warpstream_region = var.warpstream_region,
+    #}))
   }
 
   iam_role_name = var.agent_role_name
   subnet_ids    = data.aws_subnets.subnets.ids
   security_group_rules = {
     ingress_http = {
-      type                     = "ingress"
-      from_port                = 9092
-      to_port                  = 9092
-      protocol                 = "tcp"
-      description              = "Service port"
+      type        = "ingress"
+      from_port   = 9092
+      to_port     = 9092
+      protocol    = "tcp"
+      description = "Service port"
       #source_security_group_id = module.ingress.security_group_id
       cidr_blocks = ["0.0.0.0/0"]
     }
