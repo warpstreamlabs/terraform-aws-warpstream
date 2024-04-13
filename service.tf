@@ -31,6 +31,25 @@ module "service" {
 
   iam_role_name = var.agent_role_name
   subnet_ids    = data.aws_subnets.subnets.ids
+  security_group_rules = {
+    ingress_http = {
+      type                     = "ingress"
+      from_port                = 9092
+      to_port                  = 9092
+      protocol                 = "tcp"
+      description              = "Service port"
+      #source_security_group_id = module.ingress.security_group_id
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
   tags = merge(local.tags, {
     ServiceName = local.service_name
   })
