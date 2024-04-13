@@ -83,13 +83,13 @@ variable "virtual_cluster" {
 variable "cpu" {
   description = "Number of requested CPU cores"
   type        = number
-  default     = 4
+  default     = 1
 }
 
 variable "memory" {
   description = "Requested Memory in GiB"
   type        = number
-  default     = 16
+  default     = 1
 }
 
 variable "warpstream_region" {
