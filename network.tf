@@ -3,7 +3,7 @@ resource "aws_lb" "warpstream" {
   name               = var.lb_name
   internal           = false
   load_balancer_type = "network"
-  subnets            = data.aws_subnets.subnets.ids
+  subnets            = local.subnet_ids
 }
 
 resource "aws_lb_listener" "warpstream_agent" {

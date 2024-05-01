@@ -87,7 +87,7 @@ module "service" {
   create_tasks_iam_role = false
   tasks_iam_role_arn    = local.agent_role_arn
 
-  subnet_ids = data.aws_subnets.subnets.ids
+  subnet_ids = local.subnet_ids
   security_group_rules = {
     ingress_http = {
       type        = "ingress"
