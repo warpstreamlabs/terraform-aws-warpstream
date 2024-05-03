@@ -44,6 +44,12 @@ variable "vpc_subnet_visibility_tag" {
   default     = "public"
 }
 
+variable "subnet_ids" {
+  description = "Subnets to use for the ECS service."
+  type        = list(string)
+  default     = []
+}
+
 // agent configuration
 variable "agent_version" {
   description = "Version of the WarpStream Agent."
