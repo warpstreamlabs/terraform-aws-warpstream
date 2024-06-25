@@ -1,6 +1,37 @@
 locals {
   cluster_arn = var.create_cluster ? aws_ecs_cluster.warpstream[0].arn : data.aws_ecs_cluster.warpstream[0].arn
+  cli_zip = "awscli-exe-linux-x86_64.zip"
+  provision_ec2_command_list = var.create_cluster ? [
+  "#!/bin/bash",
+
+  # Bump this to force refreshes if needed.
+  "echo force_refresh_1",
+
+  # ECS stuff
+  # 
+  # Tell the ECS agent which ECS cluster to connect to.
+  "echo ECS_CLUSTER=${aws_ecs_cluster.warpstream[0].name} >> /etc/ecs/ecs.config",
+  # Configure per-service values for ECS_CONTAINER_STOP_TIMEOUT:
+  # https://docs.aws.amazon.com/AmazonECS/latest/bestpracticesguide/load-balancer-connection-draining.html
+  # "echo ECS_CONTAINER_STOP_TIMEOUT=${var.ecs_container_stop_timeout} >> /etc/ecs/ecs.config",
+  # Configure log rotation to be size-based cause we log alot and otherwise we'll run out of disk space.
+  "echo ECS_LOG_ROLLOVER_TYPE=size >> /etc/ecs/ecs.config",
+  "echo ECS_LOG_MAX_FILE_SIZE_MB=100 >> /etc/ecs/ecs.config",
+  "echo ECS_LOG_MAX_ROLL_COUNT=10 >> /etc/ecs/ecs.config",
+
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/automated_image_cleanup.html#automated_image_cleanup_parameters
+  # 
+  # So we don't run out of disk space.
+  "echo ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=30m >> /etc/ecs/ecs.config",
+  "echo ECS_IMAGE_CLEANUP_INTERVAL=10m >> /etc/ecs/ecs.config",
+  "echo ECS_IMAGE_MINIMUM_CLEANUP_AGE=30m >> /etc/ecs/ecs.config",
+  "echo ECS_NUM_IMAGES_DELETE_PER_CYCLE=10 >> /etc/ecs/ecs.config",
+
+] : []
+
+  provision_ec2_command_script = join("\n", local.provision_ec2_command_list)
 }
+
 
 data "aws_ecs_cluster" "warpstream" {
   count        = var.create_cluster ? 0 : 1
@@ -90,6 +121,8 @@ resource "aws_launch_template" "ecs_launch_template" {
   image_id = "ami-090310a05d8eae025"
   instance_initiated_shutdown_behavior = "terminate"
   instance_type = "m5.xlarge"
+  
+  user_data = base64encode(local.provision_ec2_command_script)
   
   # vpc_security_group_ids               = [aws_security_group.service_security_group.id]
   tag_specifications {
