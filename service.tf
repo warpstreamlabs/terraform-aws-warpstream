@@ -9,10 +9,10 @@ module "ecs_service" {
   cluster_arn     = local.cluster_arn
 
   desired_count            = 1
-  cpu                      = var.cpu * 1024
-  memory                   = var.memory * 1024
+  # cpu                      = var.cpu * 1024
+  # memory                   = var.memory * 1024
   force_new_deployment     = true
-  requires_compatibilities = ["EC2"]
+  # requires_compatibilities = ["EC2"]
   
   launch_type              = "EC2"
   network_mode             = "awsvpc"
@@ -53,6 +53,7 @@ module "ecs_service" {
       }
       command = [
         "agent"
+        # -metadataURL
       ]
       memory_reservation = 100
       environment = [
@@ -99,12 +100,14 @@ module "ecs_service" {
       #source_security_group_id = module.ingress.security_group_id
       cidr_blocks = ["0.0.0.0/0"]
     }
+    # Allow all egress.
     egress_all = {
       type        = "egress"
       from_port   = 0
       to_port     = 0
       protocol    = "-1"
       cidr_blocks = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
     }
   }
 

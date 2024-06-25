@@ -56,3 +56,31 @@ module "agent" {
 
   custom_role_policy_arns = [aws_iam_policy.access[0].arn, ]
 }
+
+# ECS stuff
+
+resource "aws_iam_role" "ecs_agent_role" {
+  name_prefix        = "ecs_agent_${var.namespace_suffix}"
+  assume_role_policy = data.aws_iam_policy_document.ecs_agent_policy_doc.json
+}
+
+data "aws_iam_policy_document" "ecs_agent_policy_doc" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_agent_policy_attach" {
+  role       = aws_iam_role.ecs_agent_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+resource "aws_iam_instance_profile" "ecs_agent_instance_profile" {
+  name_prefix = "ecs_agent_${var.namespace_suffix}"
+  role        = aws_iam_role.ecs_agent_role.name
+}

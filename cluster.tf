@@ -20,7 +20,7 @@ resource "aws_ecs_cluster" "warpstream" {
 resource "aws_autoscaling_group" "ecs_asg" {
   count = var.create_cluster ? 1 : 0
   name_prefix = "asg_${var.namespace_suffix}"
-  max_size = 10
+  max_size = 3
   min_size = 1
   health_check_type         = "EC2"
 
@@ -82,11 +82,15 @@ resource "aws_launch_template" "ecs_launch_template" {
   count = var.create_cluster ? 1 : 0
   name_prefix = "ecs_lt_${var.namespace_suffix}"
 
+  iam_instance_profile {
+    arn = aws_iam_instance_profile.ecs_agent_instance_profile.arn
+  }
   # image_id                             = var.is_arm ? var.arm_ecs_ami : var.x86_ecs_ami
   // Amazon Linux AMI 2.0.20240312 x86_64 ECS HVM GP2
   image_id = "ami-090310a05d8eae025"
   instance_initiated_shutdown_behavior = "terminate"
   instance_type = "m5.xlarge"
+  
   # vpc_security_group_ids               = [aws_security_group.service_security_group.id]
   tag_specifications {
     resource_type = "instance"
