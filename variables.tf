@@ -103,3 +103,22 @@ variable "warpstream_region" {
   type        = string
   default     = "us-east-1"
 }
+
+variable "namespace_suffix" {
+  description = "Suffix to use for all resources"
+  default = ""
+}
+
+# variable "arm_ecs_ami" {
+#   description = "ami for arm instances"
+# }
+
+# variable "x86_ecs_ami" {
+#   description = "ami for x86 instances"
+# }
+
+# variable "is_arm" {
+#   description = "are we running on arm instances"
+# }
+
+# TODO: Provision script
