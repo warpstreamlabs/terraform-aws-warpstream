@@ -69,10 +69,14 @@ module "ecs_service" {
           name  = "WARPSTREAM_DEFAULT_VIRTUAL_CLUSTER_ID"
           value = var.virtual_cluster
         },
+        # {
+        #   name  = "WARPSTREAM_REGION"
+        #   value = var.warpstream_region
+        # },
         {
-          name  = "WARPSTREAM_REGION"
-          value = var.warpstream_region
-        }
+          name = "WARPSTREAM_METADATA_URL",
+          value = "https://api.prod.us-east-1.warpstream.com"
+        },
       ]
     }
 
@@ -114,10 +118,13 @@ module "ecs_service" {
   tags = merge(local.tags, {
     ServiceName = local.service_name
   })
+  
 
-  load_balancer = var.create_lb ? {
-    target_group_arn = aws_lb_target_group.warpstream_agent[0].arn
-    container_name   = "warpstream-agent"
-    container_port   = 9092
-  } : {}
+  load_balancer = var.create_lb ? { 
+    "lb1": {
+      target_group_arn = aws_lb_target_group.warpstream_agent[0].arn
+      container_name   = "warpstream-agent"
+      container_port   = 9092
+    }
+  }: {}
 }
