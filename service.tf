@@ -51,10 +51,12 @@ resource "aws_ecs_task_definition" "service_task" {
       "cpu": ${jsonencode(local.cpu)},
       "command": ["agent"],
       "logConfiguration": {
-        "logDriver": "json-file",
+        "logDriver": "awslogs",
         "options": {
-            "max-size": "100m",
-            "max-file": "10"
+          "awslogs-create-group": "true",
+          "awslogs-group": "brian-test-logs",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "brian-agent"
         }
       }
     }
