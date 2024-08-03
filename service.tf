@@ -50,12 +50,12 @@ resource "aws_ecs_task_definition" "service_task" {
       "memory": ${jsonencode(local.memory)},
       "cpu": ${jsonencode(local.cpu)},
       "command": ["agent"],
-       log_configuration = {
-        log_driver = "awslogs"
-        options = {
-          "awslogs-create-group" : "true"
-          "awslogs-group" : aws_cloudwatch_log_group.warpstream_agent.name
-          "awslogs-region" : local.bucket_region
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-create-group" : "true",
+          "awslogs-group" : ${jsonencode(aws_cloudwatch_log_group.warpstream_agent.name)},
+          "awslogs-region" : ${jsonencode(local.bucket_region)},
           "awslogs-stream-prefix" : "ecs"
         }
       }

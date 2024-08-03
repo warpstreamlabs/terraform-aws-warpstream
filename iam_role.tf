@@ -106,3 +106,28 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy_attach" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
+
+data "aws_iam_policy_document" "ecs_task_s3_policy_document" {
+  statement {
+    sid     = "S3ReadPermissionsAndObjectPermissions"
+    actions = ["s3:Get*", "s3:List*", "s3:*Object"]
+
+    effect = "Allow"
+    resources = ["arn:aws:s3:::${var.bucket_name}"]
+  }
+}
+
+resource "aws_iam_policy" "ecs_task_s3_policy" {
+  count       = 1
+  name_prefix = "ecs_task_s3_policy_${var.namespace_suffix}"
+  path        = "/"
+  description = "Gives ECS tasks (service containers) permissions to use S3"
+
+  policy = data.aws_iam_policy_document.ecs_task_s3_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_s3_policy" {
+  count      = 1
+  role       = aws_iam_role.ecs_agent_role.name
+  policy_arn = aws_iam_policy.ecs_task_s3_policy[0].arn
+}
